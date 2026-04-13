@@ -121,4 +121,23 @@
 - 열매(Berries)와 밀(Wheat)은 기지 농장에서만 생산, 팰 결정(Pal_crystal_S)과 섬유(Fiber)는 필드에서만 수집
 - FarmBlock_Berries의 1회 수집당 생산량이 매우 높음 (128,340이벤트 → 949만 개)
 
+### 2026-04-13 분석 팀장 피드백 반영 (session-play-rhythm v3 수정)
+- Day 3~4 콘텐츠 소진 가설에 데이터 보강: D1 코호트 Day 4 기준 평균 Lv12.8, 중앙값 Lv14, 가이드 퀘스트 중앙값 112/363(31%)
+- 레벨별 D5+ 잔존율: Lv1-10 17.0% / Lv11-15 58.3% / Lv16-20 76.6% / Lv21-25 89.5% / Lv26+ 97.4%
+- 결론: 콘텐츠 소진(고레벨) + 진행 정체(저레벨) 복합 현상. 전형적 유저는 31%만 소화한 상태
+- 제작 이벤트 86% 비중 경고를 4.5절 본문에도 추가
+- 출처: ingame_login(user_level), ingame_guide_quest(quest_idx, status='complete')
+
+### 2026-04-13 분석 팀장 피드백 반영 (pal-capture-behavior v3 수정)
+- FlowerRabbit/Kitsunebi 파밍 이유: ingame_pal_enrich 교차 분석으로 단련 재료 소비 연결 확인
+  - FlowerRabbit 포획의 73.4%가 단련 소비, 99.8%가 Lv15+에서 발생 (단련 파밍 전용)
+  - Kitsunebi 단련 소비 6,135, 비율 36.9%
+- 반증2 n=18 한계를 결론에서 더 솔직히 반영: "탐색적 수준 상관관계", 포획 총량 통제 검증으로 독립적 효과 확정 불가
+- **교훈**: 표본이 작은 통제 검증은 결론에서 약화시키지 말고 한계를 정면으로 다룰 것
+
+## 데이터 품질 주의사항 (추가)
+- ingame_pal_enrich 테이블: material_count = 단련에 투입된 팰 수, material_list에 투입 팰 상세 (JSON array)
+- enrich_pal_datatable_id = 단련 대상(강화되는 팰), material_list 내 datatable_id = 재료로 소비되는 팰
+- 단련 시 동종 팰만 재료로 사용 가능 (SheepBall 단련에 SheepBall 재료)
+
 <!-- 이후 작업 기록은 아래에 자동 추가됨 -->
