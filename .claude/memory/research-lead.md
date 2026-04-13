@@ -131,7 +131,16 @@
 - **팀원 오류 패턴**: 코퍼헤드R — (1) 고유 계정 수 COUNT DISTINCT 오류(911→997), (2) mean of ratios vs ratio of means 혼동. 통계량 정의 확인 필요
 - **전체 완료**: Phase 1~4, 6 완료
 
-**누적 9건 — 10건 도달 시 2차 회고(Phase 7) 실시**
+### 2026-04-13 [Copperhead] 플레이어 다운·전투 패턴 분석 — 코퍼헤드R
+- **주제**: 전투 중 다운 원인, 적 유형별 위협도, 경직 연쇄, 다운-미션 결과 관계
+- **결과**: 가설 3건 (채택/채택/기각). Trooper 45.6%, 경직 동반 41.3%, 다운 많을수록 성공(생존자 편향)
+- **검증**: 검증원 MINOR (NULL instigator 분류 오류, 자해 정합성, HitReact 분류, 맵 누락) → 코퍼헤드R 수정 → 팀장 **PASS**
+- **지식 전파**: `findings/copperhead/player-down-combat-pattern.md`
+- **리포트**: `reports/research/copperhead/player-down-combat-pattern.md`
+- **팀원 오류 패턴**: 코퍼헤드R — CAST(NULL AS STRING)→'None' 변환으로 인한 NULL 처리 오류. IS NULL 조건 별도 처리 필수
+- **전체 완료**: Phase 1~4, 6 완료
+
+**누적 10건 — 2차 회고(Phase 7) 실시 예정**
 
 ---
 

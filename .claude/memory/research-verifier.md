@@ -37,4 +37,21 @@
 - **[NEW] 가설 측정 대상과 실제 측정 지표의 불일치** (재시작율 vs 재시작 후 성공율)
 - **[NEW] 집합 간 중복 미제거 (UNION 대신 단순 합산)**: 성공+실패 인원에서 양쪽 모두 속하는 플레이어 미제거
 
+### 2026-04-13 Copperhead 플레이어 다운·전투 패턴 분석 (코퍼헤드R)
+- **판정**: MINOR
+- **주요 발견**: 대부분 수치 일치 (10항목 중 8항목 완전 일치). 2건 필수 수정
+  - instigatorname NULL인 37건을 "자해"에 포함한 분류 오류: 실제 자해(instigator=target)는 61건, NULL instigator 37건은 환경/낙하 피해. 대분류 AI 259/자해 61/원인 미상 37로 수정 필요
+  - 섹션 4.7 자해 세부 합계(61건)와 대분류 자해(98건)의 37건 불일치 미설명
+- **논리**: H3 기각 솔직, 반증 5건 충분, Fact/Estimate 구분 양호
+- **리포트**: `reports/research/copperhead/player-down-combat-pattern-verification.md`
+
+## 오류 패턴 (업데이트)
+
+- **[NEW] NULL의 문자열 변환 오류**: `CAST(NULL AS STRING)` → `'None'`이 되어 `NOT LIKE 'BP_AICharacter%'` 조건에 해당. NULL instigator를 "Player"로 잘못 분류
+- 집계 시 고레벨 롱테일 데이터 누락
+- 반복 인용 수치의 산술 검증 미비
+- streak/chain 정의 미문서화
+- 가설 측정 대상과 실제 측정 지표의 불일치
+- 집합 간 중복 미제거
+
 <!-- 이후 작업 기록은 아래에 자동 추가됨 -->

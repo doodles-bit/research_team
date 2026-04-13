@@ -199,4 +199,78 @@
 - 76명(7.5%)이 237건 실패 전부 발생. 933명(92.5%)은 실패 0회
 - 상위 3명이 51건(21.5%) 발생
 
+### 2026-04-13 — 플레이어 다운(전투 사망) 패턴 분석 (네 번째 연구)
+- **리포트**: `reports/research/copperhead/player-down-combat-pattern.md`
+- **데이터 기간**: 2026-02-04 ~ 2026-04-10
+- **핵심 발견**:
+  - 다운 357건 중 AI 적 259건(72.5%), 자해 61건(17.1%), 환경/원인미상 37건(10.4%). PvP 다운은 0건
+  - Trooper(사격형)가 AI 다운의 45.6%, Husk(근접형) 29.3%. 두 유형 합산 74.9%
+  - 피격 경직(HitReact) 동반 다운이 AI 다운의 41.3% — 연쇄 피격 패턴 가능성
+  - 다운 많은 세션이 오히려 성공률 높음(1회 35.9% → 7+회 72.7%) — 생존자 편향(미션 시간 교란)
+  - AAntle 1인이 64건(17.9%) 기록, 자해 44건 중 40건이 SelfRevive 테스트
+  - 상호작용(터렛/기기) 중 다운 9건(2.5%) — 무방비 취약 상태
+- **가설 판정**: H1 채택(특정 적 유형 쏠림), H2 채택(경직 동반 41.3%), H3 기각(다운↑=성공↑, 생존자 편향)
+- **상태**: 검증 MINOR 수정 완료, 팀장 리뷰 대기
+
+## cphplayerdowned 테이블 메타데이터
+
+### 스키마 주요 컬럼
+- account_id: 보고한 플레이어의 계정 ID
+- username: 보고한 플레이어 이름 (클라이언트 측)
+- targetname: 다운된 플레이어 이름
+- instigatorname: 다운 가해자 (BP_AICharacter_* = AI, 플레이어명 = 자해/타인)
+- instigatortags: 공격 유형 태그 (Damage.Projectile, Damage.Melee, Damage.Explosive, Damage.Ability)
+- targettags: 다운 시 플레이어 상태 (무기, 클래스, CharacterState 등)
+- damagetags, eventtag: 대부분 None
+- instigatorlocation, targetlocation: 3D 좌표 (V(X=, Y=, Z=) 형식, string)
+- mapname, onlinesessionid, buildversion, computername 등
+- 모든 값 컬럼 string 타입 → CAST 필수
+
+### 데이터 품질
+- 전체 357건, 132 계정, 55 고유 다운 플레이어(targetname), 39 고유 보고자(username)
+- 중복 없음: 357 unique eventid = 357 total rows
+- "Other Player" 다운은 0건 — 비AI instigator는 모두 instigator=target(자해 61건) 또는 instigator=NULL(환경/원인미상 37건)
+- username ≠ targetname인 151건은 팀원의 다운을 관찰한 기록
+- AAntle 극단값: 64건(17.9%), 자해 44건(SelfRevive 테스트)
+- 서브클래스 미표기: AI 다운 259건 중 126건(48.6%)에 SubclassPassive 태그 없음
+
+### AI 적 유형 목록 (instigatorname 패턴)
+- BP_AICharacter_Trooper_Mover: 사격형 병사 (최다 118건)
+- BP_AICharacter_Husk_Mover: 근접 돌격형 (55건, Damage.Melee)
+- BP_AICharacter_Husk_Bomber_Mover: 폭발형 허스크 (20건, Damage.Explosive)
+- BP_AICharacter_Trooper_Melee_Mover: 근접 병사 (38건)
+- BP_AICharacter_Shaman_Mover: 원거리 특수형 (24건)
+
+### 연관 테이블 조인
+- onlinesessionid로 cphmissionsucceeded/cphmissionfailed와 조인 가능
+- 미션 결과 테이블의 missioncompletiondurationminutes 활용 가능
+
+## 미탐색 테이블 현황 (4차 연구 시점)
+### 탐색 완료
+cphmissionstarted, cphmissionsucceeded, cphmissionfailed, cphplayerheartbeat, cphsessioncreated, cphsessionjoined, cphleavesessionevent, cphplayerspawned, cphplayerlogin, cphplayerdownedevent, cphcreatesessionevent, cphjoinsessionevent, **cphplayerdowned**
+
+### 미탐색 (잔여 관심)
+- view_client_gpp_device_info: 14,482건, PC 하드웨어 상세(CPU/GPU/RAM struct). FPS 분석과 연계 가능
+- view_client_gpp_user_entry: 로그인 flow, error_code, login_method 정보
+- sessionstart/sessionend: 텔레메트리 세션(11,785/7,736건), buildversion, computername 포함
+- au_base: 사용자 기반 집계 테이블 (스키마 미확인)
+- connected/disconnected: 2026-02 이후 0건 (빈 테이블)
+
+### 2026-04-13 — 플레이어 다운 패턴 리포트: 검증 후 MINOR 수정
+- **검증 판정**: MINOR (4건 수정)
+- **수정 내용**:
+  1. 다운 원인 대분류 오류: 2분류(AI 259 + 자해 98) -> 3분류(AI 259 + 자해 61 + 환경/원인미상 37). instigatorname NULL 37건이 CAST 후 'None'으로 변환되어 자해에 잘못 포함됨
+  2. 섹션 4.7 자해 분석 정합성: 98건 -> 61건 기준으로 수정, 환경 피해 37건을 별도 하위 항목으로 분리
+  3. HitReact 배타적 분류 명시: CASE WHEN 우선순위에 의한 85건과 비배타적 115건의 차이를 주석으로 설명
+  4. 맵별 15건 누락 맵 주석: MIS_VS_2k_ArtPrimaryPOI 6, Hub 5, GYM 2, POI 2건을 테이블 하단에 명시
+- **교훈**: CAST(NULL AS STRING) -> 'None' 변환으로 인한 NULL 처리 오류. 향후 NULL 컬럼 쿼리 시 IS NULL / IS NOT NULL 조건 별도 처리 필수
+
+## 오류 패턴 기록
+
+### CAST(NULL AS STRING) -> 'None' 변환 문제 (중요)
+- Databricks에서 CAST(NULL AS STRING)은 SQL 표준대로 NULL을 반환하지만, Python/PySpark에서 결과를 문자열로 읽을 때 'None'으로 표시될 수 있음
+- instigatorname이 NULL인 환경 피해 건이 플레이어명 'None'과 혼동되어 자해로 분류됨
+- **대응**: NULL 가능 컬럼은 항상 IS NULL / IS NOT NULL 조건을 CASE WHEN에 우선 배치할 것
+- **영향**: 자해 건수 98->61, 환경/원인미상 0->37
+
 <!-- 이후 작업 기록은 아래에 자동 추가됨 -->
