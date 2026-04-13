@@ -55,6 +55,15 @@
 - **리포트**: `reports/research/palm/session-play-rhythm.md`
 - **전체 완료**: Phase 1~4, 6 완료 (Phase 5 사용자 부재로 스킵)
 
+### 2026-04-13 [PalM] 팰 포획 행동 패턴 분석 — 팔모R
+- **주제**: 핵심 게임 루프인 팰 포획의 행동 패턴 (분석팀 미탐색)
+- **결과**: 가설 3건 (채택/채택/부분채택). 포획 다양성-잔존 상관(36.1%→82.8%), HP 75%+ 전원 실패(9,836건 UX 이슈), 상위 10종 54.3% 집중
+- **검증**: 검증원 MINOR → 팔모R 수정 → 팀장 **PASS**
+  - 수정 3건: 다양성별 유저 수 불일치, "100종" 표현(실제 52종), 반증1 유저 수
+- **지식 전파**: `findings/palm/pal-capture-behavior.md`
+- **리포트**: `reports/research/palm/pal-capture-behavior.md`
+- **전체 완료**: Phase 1~4, 6 완료 (Phase 5 스킵)
+
 ---
 
 ## 대기 항목
