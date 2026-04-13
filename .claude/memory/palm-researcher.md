@@ -98,4 +98,27 @@
 - 부화 전용 알(Meka_Jetdragon, Fire_Ronin, Electricity_ElecPanda)은 유저당 1회만 부화 가능
 - capture-only 팰: BOSS 계열, Defense 변형(Garm_Defense, Boar_Defense 등), Roaming 변형, GYM 변형 등 18종은 포획만 가능(부화 불가)
 
+### 2026-04-13 경제/자원 흐름 패턴 분석
+- **가설 1**: 기지 자원 비중이 Day별 증가 → **채택** (Day1 20.4% → Day6 69.3%, Day3에 crossover)
+- **가설 2**: 음식 제작이 과반 + 고레벨에서 비중 증가 → **채택** (전체 73.6%, Lv31+ 87~93%)
+- **가설 3**: D1 기지 경험 → 높은 잔존 → **기각** (레벨 통제 시 차이 없음/역전. D1 Lv16+ 도달 유저 100% 기지 경험)
+- **핵심 발견**:
+  - 구운 열매(Baked_Berries) 단일 레시피가 전체 제작의 70.7% 차지 — "음식 공장" 수렴
+  - 상위 68명(6.2%)이 구운 열매 총생산의 85.4% 생산
+  - 유황 기지 의존도 76.1%, 필드 유황의 3배 이상
+  - 팰 결정은 필드 전용 자원(138만 개), 필드 탐험 동기 유지 역할
+  - 제작 강도: Lv21-30에서 인당 7,535건으로 급증 (기지 자동 제작 추정)
+- **반증 확인**: (1) D1 기지-잔존 관계는 레벨 통제 시 사라짐, (2) 음식 비중 73.6%는 소수 고레벨 편향이 있으나 Lv11+부터 구조적 현상, (3) 기지 비중 증가는 유저 이탈만으로 설명 불가 — 개인 수준 전환 확인
+- **한계**: 자원 소비 로그 부재, 레시피 원재료 비율 미확인, 자동/수동 제작 구분 불가
+- **리포트**: `reports/research/palm/economy-resource-flow.md`
+- **상태**: 초안 작성 완료, 검증 대기
+
+## 데이터 품질 주의사항 (추가)
+- ingame_login 테이블은 player_level이 아닌 user_level 컬럼명 사용
+- ingame_craft_complete의 player_level은 craft 시점 레벨, ingame_login의 user_level은 로그인 시점 레벨
+- ingame_nature_resource_collect의 collect_item_list는 array<struct> 타입으로 LATERAL VIEW EXPLODE 필요
+- ingame_building_resource_collect의 item_datatable_id/item_quantity는 단일 자원 (배열 아님)
+- 열매(Berries)와 밀(Wheat)은 기지 농장에서만 생산, 팰 결정(Pal_crystal_S)과 섬유(Fiber)는 필드에서만 수집
+- FarmBlock_Berries의 1회 수집당 생산량이 매우 높음 (128,340이벤트 → 949만 개)
+
 <!-- 이후 작업 기록은 아래에 자동 추가됨 -->

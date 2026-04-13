@@ -64,6 +64,15 @@
 - **리포트**: `reports/research/palm/pal-capture-behavior.md`
 - **전체 완료**: Phase 1~4, 6 완료 (Phase 5 스킵)
 
+### 2026-04-13 [PalM] 경제/자원 흐름 패턴 분석 — 팔모R
+- **주제**: 자원 수집-제작-소비 흐름 (분석팀 미탐색)
+- **결과**: 가설 2건 채택, 1건 기각. 기지 자원 Day3 역전(20.4%→69.3%), 음식 제작 73.6%(Baked Berries 70.7%), D1 기지→잔존 효과는 레벨 통제 시 소멸
+- **검증**: 검증원 **PASS** (경미 표기 수정 7건 권고, 결론 무영향) → 팀장 **PASS**
+- **지식 전파**: `findings/palm/economy-resource-flow.md`
+- **리포트**: `reports/research/palm/economy-resource-flow.md`
+- **특기**: 팔모R 첫 검증 즉시 PASS — 이전 오류 패턴(산술, 범위 누락) 개선됨
+- **전체 완료**: Phase 1~4, 6 완료 (Phase 5 스킵)
+
 ---
 
 ## 대기 항목
