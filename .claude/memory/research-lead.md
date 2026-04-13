@@ -122,6 +122,17 @@
 - **팀원 오류 패턴**: 코퍼헤드R — (1) 날짜별 집계 쿼리 결과 전사 오류, (2) 유효율 일반화 오류. 쿼리 결과를 리포트에 옮길 때 원본 대조 필수
 - **전체 완료**: Phase 1~4, 6 완료
 
+### 2026-04-13 [Copperhead] 세션 생명주기와 멀티플레이어 접속 품질 분석 — 코퍼헤드R
+- **주제**: 세션 참여 실패 패턴, 빌드별 실패율, 솔로/멀티 비율 (세션 테이블 미탐색 영역)
+- **결과**: 가설 3건 (부분채택/채택/채택-인과불확정). 참여 실패 12.1%(첫시도 3.5%), 76명에 100% 집중, 빌드별 0~34.8%, 솔로 77.2%
+- **검증**: 검증원 MINOR (Success 고유 계정 911→997, 평균 실패율 표기 혼동) → 코퍼헤드R 수정 → 팀장 **PASS**
+- **지식 전파**: `findings/copperhead/session-lifecycle-multiplayer-quality.md`
+- **리포트**: `reports/research/copperhead/session-lifecycle-multiplayer-quality.md`
+- **팀원 오류 패턴**: 코퍼헤드R — (1) 고유 계정 수 COUNT DISTINCT 오류(911→997), (2) mean of ratios vs ratio of means 혼동. 통계량 정의 확인 필요
+- **전체 완료**: Phase 1~4, 6 완료
+
+**누적 9건 — 10건 도달 시 2차 회고(Phase 7) 실시**
+
 ---
 
 ## 아카이브 인덱스

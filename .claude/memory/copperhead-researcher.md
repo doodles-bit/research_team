@@ -126,4 +126,77 @@
   9. 인과 표현 완화: "유발하는 것으로 보인다"->"집중적으로 발생한다", "메모리 누수 점검"->"원인 추가 조사 필요"
 - **교훈**: 날짜별 건수 불일치는 event_date vs ingestion date 혼동 가능성. 쿼리 재실행으로 반드시 확인할 것. account_id 컬럼명 주의(accountid 아님).
 
+### 2026-04-13 — 세션 생명주기와 멀티플레이어 접속 품질 분석 (세 번째 연구)
+- **리포트**: `reports/research/copperhead/session-lifecycle-multiplayer-quality.md`
+- **데이터 기간**: 2026-02-04 ~ 2026-04-11
+- **핵심 발견**:
+  - 세션 참여 실패율 12.1% (1,955건 중 237건), 92.4%가 UnknownError
+  - 첫 시도 실패율은 3.5%로 낮음 -- 높은 전체 실패율은 재시도에 의한 증폭
+  - 76명(7.5%)이 전체 실패 100% 발생 (실패 집중도 극단적)
+  - 빌드별 실패율 0%~34.8%, 4월 초 빌드에서 0~2.4%로 개선 추세
+  - 솔로 세션 77.2%, 멀티 세션 미션 진행률 42.7% vs 솔로 27.7% (차이 15.0%p)
+  - 세션 생성에서 첫 미션까지 중앙값 1.02분
+- **가설 판정**: H1 부분 채택 (경과 시간 효과 있으나 재시도가 주원인), H2 채택 (빌드별 차이 명확), H3 채택 (인과관계 불확정)
+- **상태**: 검증 MINOR 수정 완료, 팀장 리뷰 대기
+
+### 2026-04-13 — 세션 생명주기 리포트: 검증 후 MINOR 수정
+- **검증 판정**: MINOR (2건 수정)
+- **수정 내용**:
+  1. Success 고유 계정 수 오류: 911 -> 997 (섹션 4.2 표). `SELECT COUNT(DISTINCT account_id) FROM cphsessionjoined WHERE sessionjoinstatus = 'Success'` 결과 997명
+  2. 평균 개인 실패율 표기 혼동: "49.5%(시도 8.4건 중 3.1건 실패)" -> 개인별 평균(mean of ratios) 49.5%와 합산 기준(ratio of means) 37.3%를 분리 서술. 두 통계량의 차이를 설명 추가
+- **교훈**: mean of ratios와 ratio of means를 혼동하지 말 것. 괄호 안 보조 수치가 본문 수치와 대응하는지 반드시 확인
+
+## 세션 테이블 메타데이터
+
+### cphsessioncreated (신 테이블, 2026-02~)
+- 건수: 2,857 (unique 세션 2,747, unique 플레이어 2,305)
+- 주요 컬럼: account_id, onlinesessionid, sessioncreationstatus(항상 Success), sessionserverregion, mapname(항상 MainMenu), buildversion, computername, sessioncreatorid/name
+- sessioncreationtime: string 타입, CAST 필수
+
+### cphsessionjoined (신 테이블, 2026-02~)
+- 건수: 1,955 (unique 플레이어 1,008)
+- 주요 컬럼: sessionjoinstatus (Success/UnknownError/SessionDoesNotExist), sessionplayercount, sessiondurationinminutesatjoin, sessionjointime
+- 모든 값 string 타입 -> CAST 필수
+- joiningplayerid: 항상 None
+
+### cphleavesessionevent (구 테이블, 2025-09~2026-01)
+- 건수: 847
+- sessionleavestatus: Success(533)/Failed(314)
+- sessiondurationinminutesatleave: 최대값 10.6억 분(데이터 오류)
+- sessionmembers: JSON-like string
+
+### cphplayerspawned (2026-02~)
+- 건수: 24,935
+- 주요 컬럼: mapname, playername, playerlocation(좌표), playerrotation
+- 21개 맵 관측: Lobby_Basic(8,129), MIS_Proto2_2k_01~04(각 3,700~4,700), 기타 GYM/POI 맵
+
+### cphcreatesessionevent (구 테이블, 2025-09~2026-04)
+- 건수: 3,048, cphsessioncreated와 유사 구조
+
+### cphjoinsessionevent (구 테이블, 2025-09~2026-04)
+- 건수: 2,247, cphsessionjoined와 유사 구조
+- sessionmembers 컬럼 있음
+- 사전 베타(2025-09~2026-01) 실패율: 10.6% (237/2,241)
+
+### cphplayerlogin (2026-02~)
+- 건수: 178 (매우 적음)
+- loginsuccessful, logintime 포함
+
+### cphplayerdownedevent (구 테이블, 2025-09~)
+- 건수: 3 (사실상 사용 불가)
+
+## 데이터 품질 주의사항 (추가)
+
+### 빌드 버전 불일치 부재
+- 참여자와 세션 생성자의 빌드 버전이 다른 경우는 0건
+- 베타 환경에서 동일 빌드 강제 적용으로 추정
+
+### 서버 지역 분포
+- us-west-2: 94.5% (2,595/2,747 세션), eu-central-1: 4.5%, ap-northeast-2: 1.0%
+- 비US 지역은 표본이 작아 통계적 비교 어려움
+
+### 세션 참여 실패 집중도
+- 76명(7.5%)이 237건 실패 전부 발생. 933명(92.5%)은 실패 0회
+- 상위 3명이 51건(21.5%) 발생
+
 <!-- 이후 작업 기록은 아래에 자동 추가됨 -->
