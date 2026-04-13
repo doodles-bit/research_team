@@ -102,7 +102,16 @@
 - **리포트**: `reports/research/palm/multiraid-participation.md`
 - **전체 완료**: Phase 1~4, 6 완료 (Phase 5 스킵)
 
-**PalM 알파테스트 미탐색 영역 소진 — 다음 게임으로 전환 필요**
+**PalM 알파테스트 미탐색 영역 소진 — Copperhead로 전환**
+
+### 2026-04-13 [Copperhead] 미션 성공/실패 패턴 분석 — 코퍼헤드R
+- **주제**: 베타 미션 텔레메트리 품질 + 미션별 성공/실패 패턴 (연구팀 첫 Copperhead 연구)
+- **결과**: 가설 3건 (채택/부분기각/기각). 데이터 누락 80.7%, Defend Mission 9.1% 이상치, 재도전율 35%로 가설 기각
+- **검증**: 검증원 MINOR (H3 판정 오류, 산술 1건) → 코퍼헤드R 수정 → 팀장 **PASS**
+- **지식 전파**: `findings/copperhead/mission-success-failure-pattern.md`
+- **리포트**: `reports/research/copperhead/mission-success-failure-pattern.md`
+- **팀원 오류 패턴**: 코퍼헤드R — 재시작 비율 vs 재시작 후 성공 비율 혼동. 측정 지표 정의 정확히 확인 필요
+- **전체 완료**: Phase 1~4, 6 완료
 
 ---
 
