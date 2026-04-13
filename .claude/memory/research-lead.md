@@ -140,7 +140,12 @@
 - **팀원 오류 패턴**: 코퍼헤드R — CAST(NULL AS STRING)→'None' 변환으로 인한 NULL 처리 오류. IS NULL 조건 별도 처리 필수
 - **전체 완료**: Phase 1~4, 6 완료
 
-**누적 10건 — 2차 회고(Phase 7) 실시 예정**
+- **Phase 7 회고 #2 완료** (2026-04-13): Copperhead 4건 + PalM 1건 교차 분석
+  - 핵심 발견: Copperhead "사실상 솔로 게임" (77.2% 솔로 + PvP 0건), 빌드 버전이 데이터/접속 품질 전방위 영향, PalM·Copperhead 공통 "코옵 설계→솔로 소비" 패턴
+  - 코퍼헤드R 오류 패턴 추이: 매 연구 다른 유형 오류 → 수치 정의/계산 과정 명시 가이드 필요
+  - 회고 리포트: `reports/research/copperhead/retrospective-02-cross-analysis.md`
+
+**누적 10건 완료**
 
 ---
 
