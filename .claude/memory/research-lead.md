@@ -145,6 +145,12 @@
   - 코퍼헤드R 오류 패턴 추이: 매 연구 다른 유형 오류 → 수치 정의/계산 과정 명시 가이드 필요
   - 회고 리포트: `reports/research/copperhead/retrospective-02-cross-analysis.md`
 
+### 2026-04-14 외부 피드백 3건 처리
+- **palm-multiraid-participation**: 제목 86.8%→86.9% 통일, "추정 3회/레이드"에 [Estimate] 태그 + chance_remain 필드 근거 추가
+- **palm-content-consumption-sequence**: Lv1-5 구간이 본팀 Lv1-9와 다른 이유 명시, Lv31+ 제작 76.9%에 이벤트 수 기준 과대평가 가능성 + 경제 연구 교차 참조 추가
+- **copperhead-3reports**: Defend Mission 9.1%에 (N=11) 표본 크기 명시, 난이도 역전 구분 불가 명시, 세션 경과 -31% 비교 기준(0-1분 평균) 명시
+- **분석 팀장 크로스 팀 관찰**: PalM+Copperhead 솔로 패턴 → 이미 2차 회고에서 다룸
+
 **누적 10건 완료**
 
 ---
