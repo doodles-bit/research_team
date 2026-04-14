@@ -400,4 +400,55 @@ cphmissionstarted, cphmissionsucceeded, cphmissionfailed, cphplayerheartbeat, cp
 - "다운 시점 무기" ≠ "주 사용 무기" — 인기도 vs 취약성 구분 불가
 - SubclassPassive.DPS.WeaponDamage 태그 내 "Weapon" 문자열이 무기 태그 검색에 혼입 가능 — LIKE '%Weapon.Ranged%' 또는 '%Weapon.Melee%'로 정밀 필터링 필요
 
+### 2026-04-14 — 플레이어 스폰 패턴과 맵 진행 퍼널 분석 (일곱 번째 연구)
+- **리포트**: `reports/research/copperhead/player-spawn-map-progression.md`
+- **데이터 기간**: 2026-02-04 ~ 2026-04-14
+- **핵심 발견**:
+  - 자동화 제외 후 1,795명, 6,599 스폰 이벤트, 21개 맵 관측
+  - 37.4%(671명) 로비에서 미션 미진입, 이 중 69.7%(468명)가 단 1회 스폰 후 이탈
+  - 로비→MIS_01 전환율 37.6%, MIS_01→MIS_02 전환율 22.4%로 급감
+  - 2개 이상 미션 맵 방문 플레이어 5.7%(103명)에 불과
+  - 미션 맵은 순차 구조가 아닌 독립 선택 구조 — MIS_04(128명) > MIS_03(87명)
+  - 모든 맵 전환이 로비를 경유하는 허브-스포크(hub-and-spoke) 패턴
+  - 리스폰 많을수록 성공률 높음(1회 10.6% → 4+ 55.4%) = 생존자 편향 (#4 연구 재확인)
+  - 스폰 텔레메트리 커버리지 40.1% (sessionstart 4,480명 중 1,795명만 스폰 기록)
+- **가설 판정**: H1 채택(로비 이탈 37.4%), H2 기각(리스폰↑=성공↑, 생존자 편향), H3 기각(비순차 구조)
+- **상태**: 초안 완료, 검증/팀장 리뷰 대기
+
+## cphplayerspawned 테이블 메타데이터 (상세)
+
+### 스키마
+- account_id, onlinesessionid, sessionid, mapname, playerlocation, playerrotation, playername, username, computername, buildversion, eventid
+- queue_time: 맵 로드 시간 추정 (ms 단위, string), 중앙값 25~36초
+- 모든 값 컬럼 string 타입 → CAST 필수
+
+### 데이터 품질
+- 전체 24,935+ 건, 자동화 제외 후 6,599건, 1,795 고유 계정
+- 스폰 커버리지: 비자동화 sessionstart 4,480명 중 1,795명(40.1%)만 스폰 기록 존재
+- 로비-only 671명 중 13명(1.9%)이 cphmissionstarted에 미션 시작 기록 있음 → 스폰 이벤트 100% 발화 보장 안됨
+- 0초 리스폰 간격 54.4%: event_at이 초 단위 절삭이나 log_created_at에서 밀리초 차이 존재
+- 21개 맵 관측(전체 기간): Lobby_Basic, Hub_Prototype, MIS_Proto2_2k_01~04, MIS_Proto2_2k_Sentinel, MIS_VS_2k_ArtPrimaryPOI, MIS_POI_Test_01, Gym_MetaContent, Gym_WeaponMods, WB_StaticGC, GYM_InteractTesting, GYM_FlyingAI, GYM_AI, GYM_Player, GYM_SpiderBossCity, POI_PRI5_DestroyFactory01_ART/ART2, POI_SEC4_Bunker02_GEN, MAP_ENV128M_VisTargetMS2
+
+### 맵 분류
+- **로비**: Lobby_Basic (플레이어 1,781명, 진입점)
+- **허브**: Hub_Prototype (122명, 로비 다음 선택지)
+- **미션(Proto2)**: MIS_Proto2_2k_01(669) > 02(150) > 04(128) > 03(87) > Sentinel(25)
+- **기타 미션**: MIS_VS_2k_ArtPrimaryPOI, MIS_POI_Test_01
+- **테스트/GYM**: Gym_*, GYM_*, WB_*, POI_*, MAP_* (소규모)
+
+## 미탐색 테이블 현황 (7차 연구 시점)
+### 탐색 완료
+cphmissionstarted, cphmissionsucceeded, cphmissionfailed, cphplayerheartbeat, cphsessioncreated, cphsessionjoined, cphleavesessionevent, cphplayerspawned, cphplayerlogin, cphplayerdownedevent, cphcreatesessionevent, cphjoinsessionevent, cphplayerdowned, view_client_gpp_device_info, view_client_gpp_user_entry, sessionstart, sessionend
+
+### 미탐색 (잔여 관심)
+- view_lobby_concurrent_user: 758,737건 — 동시접속자 시계열 데이터
+- view_lobby_user_heartbeat: 239,714건 — 로비 체류 heartbeat
+- view_lobby_connected: 15,952건 — 로비 접속 이벤트 (analytics_id, device_id, duration 등)
+- view_lobby_disconnected: 15,738건 — 로비 접속 종료 (duration, loggedin_at 포함)
+- view_iam_logged_in: 14,265건, view_iam_registered: 14,020건 — IAM 로그인/등록
+- view_client_gpp_token_refresh: 1,443건 — 토큰 갱신 이벤트
+- au_base: 0건, concurrent_user: 0건, logged_in: 0건, registered: 0건 — 빈 테이블
+- telemetry_session_start: 0건 — 빈 테이블
+- connected/disconnected: 이전 확인 시 0건
+
 <!-- 이후 작업 기록은 아래에 자동 추가됨 -->
