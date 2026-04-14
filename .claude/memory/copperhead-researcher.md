@@ -346,4 +346,58 @@ cphmissionstarted, cphmissionsucceeded, cphmissionfailed, cphplayerheartbeat, cp
   4. sessionstart 중복 sessionid 주석: 세션 종료 누락률 테이블에 "sessionid 기준, 중복 미제거" 주석 추가. DISTINCT 기준 시 SDS Dev 11.3%->12.9%, External 13.0%->13.7%로 소폭 상승
 - **교훈**: 소계 집계 시 하위 항목 전부 포함 여부 확인 필수. 동일 수치가 리포트 내 여러 곳에 등장하면 일관성 크로스체크 필요
 
+### 2026-04-14 — 무기 선택과 전투 생존 패턴 분석 (여섯 번째 연구)
+- **리포트**: `reports/research/copperhead/weapon-loadout-combat-pattern.md`
+- **데이터 기간**: 2026-02-04 ~ 2026-04-10
+- **핵심 발견**:
+  - 9종 무기 관측, 상위 3종(AR 25.2%, Sword 21.6%, DMR 17.6%)이 64.4% 차지
+  - Sword HitReact 동반 다운 52.1% vs AR 32.7% — 19.4%p 차이
+  - 서브클래스별 무기 선호 명확: DPS→LMG/AR(83.3%), Tank→Sword/Shotgun(85.7%), Support(AbilityRegen)→DMR(72.7%)
+  - AAntle 1인이 DMR 다운의 50.6%(45/89건), 33건 자해(SelfRevive 테스트) — 제외 후 분석 수행
+  - 무기 태그 없는 다운 43건은 이미 Health.Downed 상태의 추가 기록
+  - DMR 사용자의 Husk(근접형) 취약성 45.7% — 원거리 무기의 근접 돌격 대응 어려움 시사
+  - 67.9% 플레이어가 1~2종 무기만 사용
+- **가설 판정**: H1 채택(상위 3종 64.4%), H2 채택(Sword HitReact 52.1% vs AR 32.7%), H3 채택(서브클래스별 집중도 38.5~72.7%)
+- **상태**: 초안 완료, 검증/팀장 리뷰 대기
+
+## 무기 시스템 메타데이터
+
+### 데이터 원천
+- 전용 무기/장비 테이블은 존재하지 않음 (35개 테이블 중 없음)
+- 무기 정보는 `cphplayerdowned.targettags` 필드에 다운 시점 스냅샷으로만 존재
+- `cphplayerheartbeat`에는 무기 정보 미포함
+
+### 관측된 무기 목록 (12종, 9카테고리)
+| 태그 | 카테고리 | 다운 건수(AAntle 제외) |
+|------|---------|---------------------|
+| Weapon.Ranged.AR.AK47 | 돌격소총 | 63 |
+| Weapon.Melee.Sword | 근접 | 54 |
+| Weapon.Ranged.DMR.G3 | 지정사수소총 | 41 |
+| Weapon.Ranged.LMG.M249 | 경기관총 | 32 |
+| Weapon.Ranged.Shotgun.R870 | 산탄총 | 19 |
+| Weapon.Ranged.Pistol.M1911 | 권총 | 14 |
+| Weapon.Ranged.Carbine.MK | 카빈 | 11 |
+| Weapon.Ranged.Heavy.Bazooka | 중화기 | 5 |
+| Weapon.Ranged.SMG.MP | 기관단총 | 4 |
+| Weapon.Ranged.DMR.M110 | 지정사수소총 | 3 |
+| Weapon.Ranged.Shotgun.KeltecKSG | 산탄총 | 2 |
+| Weapon.Ranged.Pistol.VP9 | 권총 | 2 |
+
+### 서브클래스 목록 (5종)
+- SubclassPassive.DPS.WeaponDamage: DPS(무기 데미지)
+- SubclassPassive.DPS.AbilityDamage: DPS(어빌리티 데미지)
+- SubclassPassive.Support.AbilityRegen: 서포트(어빌리티 재생)
+- SubclassPassive.Support.GasRegen: 서포트(가스 재생)
+- SubclassPassive.Tank.DamageResist: 탱크(피해 저항)
+
+### targettags 구조
+- 쉼표+공백으로 구분된 태그 목록
+- 포함 정보: CharacterModelType(Male/Female), Character.ID.Player, Weapon.*, SubclassPassive.*, CharacterState.*(HitReact/ADS/Reloading/Jumping/UsingInteractable/Health.Downed), Ability.*(Player.WeaponFire/MeleeAttack/Jump/Reload 등)
+- WeaponCombo.Sword.Default.{N}: 콤보 공격 단계 정보
+
+### 주요 분석 주의사항
+- 서브클래스 태그 미표기 비율 48.8% (250건 중 122건) — 대표성 한계
+- "다운 시점 무기" ≠ "주 사용 무기" — 인기도 vs 취약성 구분 불가
+- SubclassPassive.DPS.WeaponDamage 태그 내 "Weapon" 문자열이 무기 태그 검색에 혼입 가능 — LIKE '%Weapon.Ranged%' 또는 '%Weapon.Melee%'로 정밀 필터링 필요
+
 <!-- 이후 작업 기록은 아래에 자동 추가됨 -->
