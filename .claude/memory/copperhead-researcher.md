@@ -273,4 +273,77 @@ cphmissionstarted, cphmissionsucceeded, cphmissionfailed, cphplayerheartbeat, cp
 - **대응**: NULL 가능 컬럼은 항상 IS NULL / IS NOT NULL 조건을 CASE WHEN에 우선 배치할 것
 - **영향**: 자해 건수 98->61, 환경/원인미상 0->37
 
+### 2026-04-13 — PC 환경 및 로그인 흐름 분석 (다섯 번째 연구)
+- **리포트**: `reports/research/copperhead/device-environment-login-flow.md`
+- **데이터 기간**: 2026-02-04 ~ 2026-04-14
+- **핵심 발견**:
+  - 134대 고유 기기 중 60.4%(81대)가 원격/가상 접속 어댑터(Parsec 등) GPU
+  - 전체 11,285 계정 중 60.3%(6,805명)가 자동화/공유 테스트 머신(PFLIGHT, MINSPEC, RECSPEC) 7대에서 접속
+  - PFLIGHT: 5대, 기기당 800명, 시간당 최대 20명 동시 접속, 세션 종료 누락률 85.4%
+  - MINSPEC/RECSPEC: 각 1대, 기기당 1,388~1,395명, 미션 참여율 48~51%
+  - 로그인 성공률 98.7%, 실패 104건 모두 "HttpResponse is null"(서버 응답 없음)
+  - 로그인 중앙값 4초, 96.1%가 10초 이내 완료
+  - 전체 계정이 정확히 1대 기기에서만 사용 -- 자동 테스트 일회용 계정 구조
+- **가설 판정**: H1 채택(원격/가상 GPU 60.4%), H2 채택(자동화 60.3%), H3 부분 채택(실패 집중이나 실패율 자체가 낮음)
+- **상태**: 검증 MINOR 수정 완료, 팀장 리뷰 대기
+
+## view_client_gpp_device_info 테이블 메타데이터
+
+### 스키마
+- device_info struct 내 pc.gpu, pc.cpu, pc.ram_total_capacity 등 중첩 구조
+- `pc` 컬럼과 `device_info.pc` 컬럼이 별도 존재. 베타 기간 데이터는 `device_info.pc.*` 사용
+- `pc.*` 컬럼은 베타 기간(2026-02~) 모두 None
+- GPU 배열: `device_info.pc.gpu[0].gpu_name`으로 첫 번째 GPU 접근
+- RAM: `device_info.pc.ram_total_capacity` (byte 단위, string -> DOUBLE 변환 후 / 1073741824 = GB)
+- 조인키: device_id (기기 식별), analytics_id (앱 실행 세션, `{device_hash}#{timestamp}` 형식)
+- 건수: 14,529 (베타 기간), 134 고유 device_id, 14,057 고유 analytics_id
+
+### 데이터 품질
+- 원격 어댑터가 GPU로 보고됨: Parsec Virtual Display Adapter, Microsoft Remote Display Adapter 등
+- 9대(6.7%)가 시기에 따라 원격/물리 GPU 전환
+- AMD Radeon RX 6900 XT + Threadripper PRO 3995WX 조합(5대)이 이벤트의 37.3% 차지
+
+## view_client_gpp_user_entry 테이블 메타데이터
+
+### 스키마
+- 로그인 흐름 추적: entry_step(app_init, try_login, server_set_status_off, login_complete, login_failed)
+- analytics_id: 앱 실행 세션 (`{device_hash}#{timestamp}`)
+- error_code, error_message: 실패 시 에러 정보
+- login_method: 'device', login_type: 'manual', login_flow_type: 'full_kid' 등
+- 건수: 14,529 app_init 이벤트 (베타 기간), 14,060 고유 analytics_id
+- 하나의 analytics_id에서 4개 단계(app_init, try_login, server_set_status_off, login_complete)가 기록됨
+
+## sessionstart / sessionend 테이블 메타데이터
+
+### 스키마
+- account_id, sessionid, buildversion, computername, username, event_at
+- sessionid로 start/end 조인 가능
+- 건수: sessionstart 11,793건(11,285 고유 계정), sessionend 7,803건(5,837 고유 계정)
+- 종료 누락: 전체 37.0%, PFLIGHT 85.4%, MINSPEC 53.1%, RECSPEC 50.6%, SDS/BBI/External 11~13%
+
+### 자동화 테스트 머신 식별
+- PFLIGHT: SDS-PFLIGHT-05, SDS-PFLIGHT-10 (주력), 03/08/11 (소량)
+- MINSPEC: SDS-MINSPEC-CPH (1대, 1,388 세션, 1,388 계정)
+- RECSPEC: SDS-RECSPEC-CPH (1대, 1,395 세션, 1,395 계정)
+- 빌드 다양성: 자동화 952 빌드 > SDS Dev 508 > External 299 > BBI 204
+
+## 이전 연구와의 교차점
+
+### 1차 미션 누락(80.7%)과의 관련
+- MINSPEC/RECSPEC의 미션 참여율 48~51% -- 미션 시작은 하지만 정상 종료 이벤트 없이 프로세스 종료
+- 자동화 환경에서 미션 결과(성공/실패) 미기록이 누락률의 상당 부분을 설명할 가능성
+
+### 2차 성능 텔레메트리와의 관련
+- heartbeat의 SDS-33기기/BBI-5기기와 sessionstart의 SDS-54대/BBI-12대는 불일치 -- heartbeat 미발송 기기 존재
+- 원격 접속 기기의 FPS 수치가 실제 렌더링 성능을 반영하지 않을 수 있음
+
+### 2026-04-13 — PC 환경 및 로그인 흐름 리포트: 검증 후 MINOR 수정
+- **검증 판정**: MINOR (4건 수정, 3건 필수 + 1건 권고)
+- **수정 내용**:
+  1. GPU 소계 불일치: Parsec만 집계한 75대(56.0%) -> Parsec+MS Remote Desktop+Virtual Monitor+DisplayLink 합산 81대(60.4%)로 수정. 순수 원격 전용 72대(53.7%), 원격+물리 양용 9대(6.7%) 주석 추가. H1 채택 판정 유지(오히려 강화)
+  2. 계정 수 경미 오차 통일: MINSPEC 1,387->1,388, RECSPEC 1,394->1,395, 전체 계정 11,284->11,285. 리포트 내 5.4절에서 이미 11,285로 표기하여 자체 불일치가 있었음 -> 전체 통일
+  3. 섹션 5.4(계정-기기 1:1 대응) 재분류: "반증 탐색 결과"에서 제거, 4.2절 하위에 "보강 근거"로 이동. 내용은 H2를 보강하는 근거이지 반증이 아니었음
+  4. sessionstart 중복 sessionid 주석: 세션 종료 누락률 테이블에 "sessionid 기준, 중복 미제거" 주석 추가. DISTINCT 기준 시 SDS Dev 11.3%->12.9%, External 13.0%->13.7%로 소폭 상승
+- **교훈**: 소계 집계 시 하위 항목 전부 포함 여부 확인 필수. 동일 수치가 리포트 내 여러 곳에 등장하면 일관성 크로스체크 필요
+
 <!-- 이후 작업 기록은 아래에 자동 추가됨 -->

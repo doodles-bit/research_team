@@ -151,7 +151,17 @@
 - **copperhead-3reports**: Defend Mission 9.1%에 (N=11) 표본 크기 명시, 난이도 역전 구분 불가 명시, 세션 경과 -31% 비교 기준(0-1분 평균) 명시
 - **분석 팀장 크로스 팀 관찰**: PalM+Copperhead 솔로 패턴 → 이미 2차 회고에서 다룸
 
-**누적 10건 완료**
+### 2026-04-14 [Copperhead] PC 환경 및 로그인 흐름 분석 — 코퍼헤드R
+- **주제**: PC 하드웨어 환경, 자동화 테스트 비율, 로그인 흐름
+- **결과**: 가설 3건 (채택/채택/부분채택). 원격 접속 60.4%, 자동화 테스트 60.3%(6,806/11,285), 로그인 98.7% 성공
+- **검증**: 검증원 MINOR (GPU 소계 75→81 불일치, 계정 수 ±1, sessionid 중복) → 코퍼헤드R 수정 → 팀장 **PASS**
+- **지식 전파**: `findings/copperhead/device-environment-login-flow.md`
+- **리포트**: `reports/research/copperhead/device-environment-login-flow.md`
+- **팀원 오류 패턴**: 코퍼헤드R — 소계 산출 시 일부 행 누락(Parsec만 집계, 나머지 3종 미포함). 소계는 반드시 개별 행 합과 대조
+- **핵심 임팩트**: 모든 Copperhead 분석에 자동화 테스트 필터링 기준 필요 → 기존 연구 수치 재해석 여지
+- **전체 완료**: Phase 1~4, 6 완료
+
+**누적 11건 완료**
 
 ---
 
