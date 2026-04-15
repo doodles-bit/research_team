@@ -28,6 +28,7 @@
 | 6 | 무기·전투 생존 | 채택/부분채택/조건부채택 | AR/Sword/DMR 64.4%, Sword HitReact 52.1% | weapon-loadout-combat-pattern.md |
 | 7 | 맵 진행 퍼널 | 채택/기각/기각 | 로비-only 37.4%, 허브-스포크, 스폰 40.1% | player-spawn-map-progression.md |
 | 8 | 로비 CCU·체류 | 채택/채택/부분채택 | 금요일 피크, 이중 분포, 42~53분 타임아웃 | lobby-concurrent-user-dwell-pattern.md |
+| 9 | IAM 계정 생명주기 | 채택/채택/채택 | 100% headless, 이중기록 버그(11/28~12/13), 토큰 48분 갱신 | iam-account-lifecycle-pattern.md |
 
 > 리포트 경로: `reports/research/copperhead/`
 
@@ -69,14 +70,11 @@
 
 ## 탐색 현황
 
-### 완료 (21개)
-cphmissionstarted, cphmissionsucceeded, cphmissionfailed, cphplayerheartbeat, cphsessioncreated, cphsessionjoined, cphleavesessionevent, cphplayerspawned, cphplayerlogin, cphplayerdownedevent, cphcreatesessionevent, cphjoinsessionevent, cphplayerdowned, view_client_gpp_device_info, view_client_gpp_user_entry, sessionstart, sessionend, view_lobby_concurrent_user, view_lobby_user_heartbeat, view_lobby_connected, view_lobby_disconnected
+### 완료 (24개 — 전체 유효 테이블 소진)
+cphmissionstarted, cphmissionsucceeded, cphmissionfailed, cphplayerheartbeat, cphsessioncreated, cphsessionjoined, cphleavesessionevent, cphplayerspawned, cphplayerlogin, cphplayerdownedevent, cphcreatesessionevent, cphjoinsessionevent, cphplayerdowned, view_client_gpp_device_info, view_client_gpp_user_entry, sessionstart, sessionend, view_lobby_concurrent_user, view_lobby_user_heartbeat, view_lobby_connected, view_lobby_disconnected, view_iam_logged_in, view_iam_registered, view_client_gpp_token_refresh
 
 ### 미탐색
-- view_iam_logged_in: 14,265건 — IAM 로그인
-- view_iam_registered: 14,020건 — IAM 등록
-- view_client_gpp_token_refresh: 1,443건 — 토큰 갱신
-- 빈 테이블: au_base, concurrent_user, logged_in, registered, telemetry_session_start
+- 빈 테이블만 남음: au_base, concurrent_user, logged_in, registered, telemetry_session_start
 
 ## 팀 피드백 Round 1 (13건 기준)
 
@@ -99,5 +97,14 @@ cphmissionstarted, cphmissionsucceeded, cphmissionfailed, cphplayerheartbeat, cp
 7. 히스토그램 구간 합계가 전체 N과 일치하는가?
 
 > 상세 오류 패턴: `reports/research/team-feedback-round1.md`
+
+## 9차 연구 (2026-04-14): IAM 계정 등록·로그인 생명주기
+- 100% headless 계정, 등록-로그인 1초 이내 단일 흐름
+- 이중 기록 버그: 2025-11-28~12-13 (1,151 등록 / 1,510 로그인 계정 영향)
+- 토큰 갱신: 2.9%(1,286/44,549)만 발생, 첫 갱신까지 ~48분(2,879초)
+- 토큰 갱신 계정 = 로비 접속 4.08회 (비갱신 1.05회의 3.9배)
+- 자동화 기기에서 토큰 갱신 0건 — 자동화 세션은 48분 이내 종료 추정
+- 전체 퍼널: 등록 100% → 로비 98.8% → 세션 72.1%
+- **미탐색 테이블 전수 소진 완료**
 
 <!-- 이후 작업 기록은 아래에 자동 추가됨 -->
